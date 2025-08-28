@@ -24,7 +24,7 @@ local InterfaceManager = loadstring(game:HttpGet("https://raw.githubusercontent.
 
 -- Janela Fluent
 local Window = Fluent:CreateWindow({
-Title = "Gengar Hub",
+Title = "LethalHub",
 SubTitle = "Script feito por um brasileiro",
 TabWidth = 160,
 Size = UDim2.fromOffset(580, 460),
@@ -34,11 +34,12 @@ MinimizeKey = Enum.KeyCode.LeftControl
 })
 
 local Tabs = {
-Main     = Window:AddTab({ Title = "Principal", Icon = "target" }),
-Visual   = Window:AddTab({ Title = "Visual",    Icon = "eye" }),
-Combat   = Window:AddTab({ Title = "Combate",   Icon = "sword" }),
-Misc     = Window:AddTab({ Title = "Misc",      Icon = "package" }),
-Scripts  = Window:AddTab({ Title = "Scripts",   Icon = "file" }), -- nova aba Scripts
+Main = Window:AddTab({ Title = "Principal", Icon = "target" }),
+Visual = Window:AddTab({ Title = "Visual",    Icon = "eye" }),
+Combat = Window:AddTab({ Title = "Combate",   Icon = "sword" }),
+Player = Window:AddTab({ Title = "Player",   Icon = "run" }),
+Misc = Window:AddTab({ Title = "Misc",      Icon = "package" }),
+Scripts = Window:AddTab({ Title = "Scripts",   Icon = "file" }), -- nova aba Scripts
 Settings = Window:AddTab({ Title = "Config",    Icon = "settings" })
 }
 
@@ -225,64 +226,6 @@ SPEED_Maid:Cleanup()
 setWalkSpeed(normalWalk)
 end
 
--- Fly
-local FLY_Maid = newMaid()
-local flyOn = false
-local flySpeed = 50
-local function startFly()
-FLY_Maid:Cleanup()
-local function setup(char)
-local hum = char:WaitForChild("Humanoid", 10)
-local root = char:WaitForChild("HumanoidRootPart", 10)
-if not hum or not root then return end
-
-hum.PlatformStand = true  
-    local bg = Instance.new("BodyGyro")  
-    bg.P = 9e4  
-    bg.MaxTorque = Vector3.new(9e9,9e9,9e9)  
-    bg.CFrame = root.CFrame  
-    bg.Parent = root  
-    local bv = Instance.new("BodyVelocity")  
-    bv.MaxForce = Vector3.new(9e9,9e9,9e9)  
-    bv.Velocity = Vector3.new(0,0.1,0)  
-    bv.Parent = root  
-
-    FLY_Maid:GiveInstance(bg)  
-    FLY_Maid:GiveInstance(bv)  
-
-    FLY_Maid:GiveConnection(RunService.RenderStepped:Connect(function()  
-        if not flyOn then return end  
-        local cam = workspace.CurrentCamera  
-        local dir = Vector3.new(0,0,0)  
-        if UserInputService:IsKeyDown(Enum.KeyCode.W) then dir += cam.CFrame.LookVector end  
-        if UserInputService:IsKeyDown(Enum.KeyCode.S) then dir -= cam.CFrame.LookVector end  
-        if UserInputService:IsKeyDown(Enum.KeyCode.D) then dir += cam.CFrame.RightVector end  
-        if UserInputService:IsKeyDown(Enum.KeyCode.A) then dir -= cam.CFrame.RightVector end  
-        if UserInputService:IsKeyDown(Enum.KeyCode.Space) then dir += Vector3.new(0,1,0) end  
-        if UserInputService:IsKeyDown(Enum.KeyCode.LeftControl) then dir -= Vector3.new(0,1,0) end  
-
-        if dir.Magnitude > 0 then  
-            dir = dir.Unit * flySpeed  
-        end  
-        bv.Velocity = dir  
-        bg.CFrame = cam.CFrame  
-    end))  
-end  
-
-if lp.Character then setup(lp.Character) end  
-FLY_Maid:GiveConnection(lp.CharacterAdded:Connect(function(char)  
-    if flyOn then task.defer(function() setup(char) end) end  
-end))
-
-end
-local function stopFly()
-FLY_Maid:Cleanup()
-if lp.Character then
-local hum = lp.Character:FindFirstChildOfClass("Humanoid")
-if hum then hum.PlatformStand = false end
-end
-end
-
 -- ======================
 -- Botões toggles na aba Combate
 -- ======================
@@ -312,7 +255,7 @@ end
 end
 })
 
-Tabs.Combat:AddToggle("NoClip", {
+Tabs.Player:AddToggle("NoClip", {
 Title = "🌀 No Clip",
 Default = false,
 Callback = function(state)
@@ -321,7 +264,7 @@ if state then startNoClip() else stopNoClip() end
 end
 })
 
-Tabs.Combat:AddToggle("InfJump", {
+Tabs.Player:AddToggle("InfJump", {
 Title = "⛷️ Infinite Jump",
 Default = false,
 Callback = function(state)
@@ -330,17 +273,8 @@ if state then startInfJump() else stopInfJump() end
 end
 })
 
-Tabs.Combat:AddToggle("Fly", {
-Title = "🪂 Fly (WASD/Space/Ctrl)",
-Default = false,
-Callback = function(state)
-flyOn = state
-if state then startFly() else stopFly() end
-end
-})
-
-Tabs.Combat:AddToggle("Speed2x", {
-Title = "⚡ Velocidade 2x",
+Tabs.Player:AddToggle("Speed2x", {
+Title = "⚡ Speed2x",
 Default = false,
 Callback = function(state)
 speedOn = state
@@ -506,7 +440,7 @@ end
 end
 
 Tabs.Misc:AddToggle("CalcToggle", {
-Title = "Mostrar Calculadora",
+Title = "Calculadora",
 Default = false,
 Callback = function(state) calcGui.Enabled = state end
 })
